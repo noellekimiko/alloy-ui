@@ -134,21 +134,30 @@ ResizeIframe = A.Component.create(
 
 				try {
 					iframeWin = instance._iframeEl.contentWindow;
+					console.log('iframeWin: ', iframeWin);
 
 					iframeDoc = iframeWin.document;
+					console.log('iframeDoc: ', iframeDoc);
 
 					instance._iframeDoc = iframeDoc;
 				}
 				catch (e) {
+					console.log('catch');
 				}
 
 				if (iframeDoc && iframeWin) {
+					console.log('inside if');
 					newHeight = ResizeIframe._getContentHeight(iframeWin, iframeDoc, instance._iframeHeight);
+
+					console.log('newHeight: ', newHeight);
 
 					instance._uiSetHeight(newHeight);
 				}
 				else if (!iframeDoc) {
+					console.log('inside else if');
 					instance._clearInterval();
+
+					console.log('instance._defaultHeight: ', instance._defaultHeight);
 
 					instance._uiSetHeight(instance._defaultHeight);
 				}
@@ -235,6 +244,7 @@ A.mix(
 		},
 
 		_getContentHeight: function(iframeWin, iframeDoc, fallbackHeight) {
+			console.log('_getContentHeight');
 			var contentHeight = null;
 
 			if (iframeDoc && iframeWin.location.href != 'about:blank') {
@@ -245,12 +255,65 @@ A.mix(
 					docEl.style.overflowY = HIDDEN;
 				}
 
+				var visibleDialogNodes = [];
+				var dialogEl = null;
+				var dialogElOffsetHeight = 0;
+				var dialogElTopPosition = 0;
+				var dialogElTotalHeight = 0;
+				var BOTTOM_MARGIN = 30;
+
+				A.one(iframeDoc).all('.aui-dialog').each(function(node) {
+					if (node.getAttribute('aria-hidden') === 'false') {
+						visibleDialogNodes.push(node);
+					}
+				});
+
+				visibleDialogNodes = A.all(visibleDialogNodes);
+
+				if (visibleDialogNodes.size() > 1) {
+					var maxHeight = 0;
+					var tallestVisibleDialog = [];
+
+					visibleDialogNodes.each(function(node) {
+						var elementHeight = node.get('offsetHeight');
+
+						if (elementHeight > maxHeight) {
+							maxHeight = elementHeight;
+						}
+					});
+
+					visibleDialogNodes.each(function(node) {
+						var elementHeight = node.get('offsetHeight');
+
+						if (elementHeight === maxHeight) {
+							tallestVisibleDialog.push(node);
+						}
+					});
+
+					tallestVisibleDialog = A.all(tallestVisibleDialog);
+					dialogEl = tallestVisibleDialog.item(0);
+				}
+				else {
+					dialogEl = visibleDialogNodes.item(0);
+				}
+
+				if (dialogEl != null) {
+					dialogElOffsetHeight = dialogEl.get('offsetHeight');
+					dialogElTopPosition = parseInt(dialogEl.getStyle('top'), 10);
+					dialogElTotalHeight = dialogElOffsetHeight + dialogElTopPosition + BOTTOM_MARGIN;
+				}
+
 				var docOffsetHeight = (iframeBody && iframeBody.offsetHeight) || 0;
 
 				var standardsMode = (iframeDoc.compatMode == 'CSS1Compat');
 
 				if (standardsMode && docOffsetHeight) {
-					contentHeight = docOffsetHeight;
+					if (docOffsetHeight > dialogElTotalHeight) {
+						contentHeight = docOffsetHeight;
+					}
+					else {
+						contentHeight = dialogElTotalHeight;
+					}
 				}
 				else {
 					contentHeight = ResizeIframe._getQuirksHeight(iframeWin) || fallbackHeight;
@@ -314,4 +377,4 @@ A.mix(
 
 A.Plugin.ResizeIframe = ResizeIframe;
 
-}, '@VERSION@' ,{skinnable:true, requires:['aui-base','aui-task-manager','plugin']});
+}, '@VERSION@' ,{requires:['aui-base','aui-task-manager','plugin'], skinnable:true});
