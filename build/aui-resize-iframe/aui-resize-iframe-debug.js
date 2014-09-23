@@ -245,12 +245,65 @@ A.mix(
 					docEl.style.overflowY = HIDDEN;
 				}
 
+				var visibleDialogNodes = [];
+				var dialogEl = null;
+				var dialogElOffsetHeight = 0;
+				var dialogElTopPosition = 0;
+				var dialogElTotalHeight = 0;
+				var BOTTOM_MARGIN = 30;
+
+				A.one(iframeDoc).all('.aui-dialog').each(function(node) {
+					if (node.getAttribute('aria-hidden') === 'false') {
+						visibleDialogNodes.push(node);
+					}
+				});
+
+				visibleDialogNodes = A.all(visibleDialogNodes);
+
+				if (visibleDialogNodes.size() > 1) {
+					var maxHeight = 0;
+					var tallestVisibleDialog = [];
+
+					visibleDialogNodes.each(function(node) {
+						var elementHeight = node.get('offsetHeight');
+
+						if (elementHeight > maxHeight) {
+							maxHeight = elementHeight;
+						}
+					});
+
+					visibleDialogNodes.each(function(node) {
+						var elementHeight = node.get('offsetHeight');
+
+						if (elementHeight === maxHeight) {
+							tallestVisibleDialog.push(node);
+						}
+					});
+
+					tallestVisibleDialog = A.all(tallestVisibleDialog);
+					dialogEl = tallestVisibleDialog.item(0);
+				}
+				else {
+					dialogEl = visibleDialogNodes.item(0);
+				}
+
+				if (dialogEl != null) {
+					dialogElOffsetHeight = dialogEl.get('offsetHeight');
+					dialogElTopPosition = parseInt(dialogEl.getStyle('top'), 10);
+					dialogElTotalHeight = dialogElOffsetHeight + dialogElTopPosition + BOTTOM_MARGIN;
+				}
+
 				var docOffsetHeight = (iframeBody && iframeBody.offsetHeight) || 0;
 
 				var standardsMode = (iframeDoc.compatMode == 'CSS1Compat');
 
 				if (standardsMode && docOffsetHeight) {
-					contentHeight = docOffsetHeight;
+					if (docOffsetHeight > dialogElTotalHeight) {
+						contentHeight = docOffsetHeight;
+					}
+					else {
+						contentHeight = dialogElTotalHeight;
+					}
 				}
 				else {
 					contentHeight = ResizeIframe._getQuirksHeight(iframeWin) || fallbackHeight;
