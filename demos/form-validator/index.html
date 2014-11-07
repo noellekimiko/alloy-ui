@@ -107,7 +107,6 @@
 
         var isImageURL = function(val) {
             var regex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
-
             return regex.test(val);
         };
 
@@ -115,9 +114,8 @@
             return (val == 42);
         };
 
-        new Y.FormValidator({
-            boundingBox: Y.one('#fm2'),
-            customRules: {
+        Y.FormValidator.addCustomRules(
+            {
                 'imageURL': {
                     condition: isImageURL,
                     errorMessage: 'Please enter a valid URL that points to an image (jpg, jpeg, png, or gif).'
@@ -126,7 +124,11 @@
                     condition: isEqualTo42,
                     errorMessage: 'Value must be 42'
                 }
-            },
+            }
+        );
+
+        new Y.FormValidator({
+            boundingBox: Y.one('#fm2'),
             rules: {
                 confirm: {
                     required: true
