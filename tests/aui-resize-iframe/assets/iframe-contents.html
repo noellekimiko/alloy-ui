@@ -48,43 +48,13 @@
 	<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
 
 <script>
-AUI().use('aui-resize-iframe', function(A) {
-
-	var iframe = A.one('.aui-dialog-iframe-node');
-
-	if (iframe) {
-		console.log('iframe exists');
-		iframe.plug(A.Plugin.ResizeIframe);
-
-		iframe.on(
-			'load',
-			function() {
-				var height = A.Plugin.ResizeIframe.getContentHeight(iframe);
-
-				console.log('height is: ', height);
-
-				if (height == null) {
-					height = 600;
-					iframe.resizeiframe.set('monitorHeight', false);
-				}
-
-				iframe.setStyle('height', height);
-			}
-		);
-	}
-
-});
-
-</script>
-
-<script>
 	AUI().use('aui-dialog', function(A) {
 
 	new A.Dialog(
 		{
 			bodyContent: 'Testing body',
 			draggable: true,
-			// height: 500,
+			height: 400,
 			stack: true,
 			title: 'Dialog',
 			width: 200,

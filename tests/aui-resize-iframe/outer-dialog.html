@@ -15,27 +15,58 @@
 	<div id="outerDialog"></div>
 
 	<script>
-	AUI().use('aui-dialog', 'aui-dialog-iframe', function(A) {
-		var outerDialogContainer = A.one('#outerDialog');
+	AUI().use(
+		'aui-dialog',
+		'aui-dialog-iframe',
+		'liferay-dockbar',
+		function(A) {
+			var outerDialogContainer = A.one('#outerDialog');
 
-		var outerDialog = new A.Dialog(
-			{
-				boundingBox: outerDialogContainer,
-				centered: true,
-				title: 'Outer Dialog',
-				width: '90%'
+			var outerDialog = new A.Dialog(
+				{
+					boundingBox: outerDialogContainer,
+					centered: true,
+					modal: true,
+					title: 'Outer Dialog',
+					width: '90%'
+				}
+			);
+
+			outerDialog.plug(
+				A.Plugin.DialogIframe,
+				{
+					uri: 'assets/iframe-contents.html'
+				}
+			).render();
+		}
+	);
+	</script>
+
+<script>
+AUI().use('aui-resize-iframe', 'aui-event', function(A) {
+	var iframe = A.one('.aui-dialog-iframe-node');
+
+	if (iframe) {
+		iframe.plug(A.Plugin.ResizeIframe);
+
+		iframe.on(
+			'load',
+			function() {
+				var height = A.Plugin.ResizeIframe.getContentHeight(iframe);
+
+				if (height == null) {
+					height = 300;
+					iframe.resizeiframe.set('monitorHeight', false);
+				}
+
+				iframe.setStyle('height', height);
 			}
 		);
+	}
 
-		outerDialog.plug(
-			A.Plugin.DialogIframe,
-			{
-				uri: 'assets/iframe-contents.html'
-			}
-		).render();
-	});
+});
 
-	</script>
+</script>
 
 </body>
 </html>
