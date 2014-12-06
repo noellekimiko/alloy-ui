@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<script src="http://cdn.alloyui.com/3.0.0/aui/aui-min.js"></script>
+	<link rel="stylesheet" href="assets/common.css" type="text/css" media="screen" />
+
+	<title>3.0.x Demo</title>
+
+</head>
+
+<body>
+	<div id="outerDialog"></div>
+
+	<script>
+	YUI().use(
+		'aui-dialog',
+		'aui-dialog-iframe',
+		'liferay-dockbar',
+		function(Y) {
+			var outerDialogContainer = Y.one('#outerDialog');
+
+			var outerDialog = new Y.Dialog(
+				{
+					boundingBox: outerDialogContainer,
+					centered: true,
+					modal: true,
+					title: 'Outer Dialog',
+					width: '90%'
+				}
+			);
+
+			outerDialog.plug(
+				Y.Plugin.DialogIframe,
+				{
+					uri: 'assets/iframe-contents.html'
+				}
+			).render();
+		}
+	);
+	</script>
+
+<script>
+YUI().use('aui-autosize-deprecated', 'aui-event', function(Y) {
+	var iframe = Y.one('.aui-dialog-iframe-node');
+
+	if (iframe) {
+		iframe.plug(Y.Plugin.ResizeIframe);
+
+		iframe.on(
+			'load',
+			function() {
+				var height = Y.Plugin.ResizeIframe.getContentHeight(iframe);
+
+				if (height == null) {
+					height = 300;
+					iframe.resizeiframe.set('monitorHeight', false);
+				}
+
+				iframe.setStyle('height', height);
+			}
+		);
+	}
+
+});
+
+</script>
+
+</body>
+</html>
